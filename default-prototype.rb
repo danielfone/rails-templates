@@ -14,7 +14,7 @@ README
 
 # Bootstrap
 gem 'twitter-bootstrap-rails'
-generate "bootstrap:install"
+generate "bootstrap:install", "static"
 generate "bootstrap:layout", "application", "fluid"
 
 # Development only
