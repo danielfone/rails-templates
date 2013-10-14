@@ -3,6 +3,9 @@
 # Disable tests
 application 'config.generators.test_framework false'
 
+# Disable strong params
+application 'config.action_controller.permit_all_parameters = true'
+
 # Read me
 run 'rm README.rdoc'
 file 'README.md', <<-README
