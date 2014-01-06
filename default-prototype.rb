@@ -1,10 +1,24 @@
-# ruby '2.0.0'
+source_paths << File.dirname(__FILE__)
 
-# Disable tests
-application 'config.generators.test_framework false'
+inject_into_file 'Gemfile', after: "source 'https://rubygems.org'\n" do
+  "ruby '2.1.0'\n\n"
+end
+
+gem 'devise'
+gem 'twitter-bootstrap-rails'
+gem 'will_paginate-bootstrap'
+gem 'will_paginate'
+
+gem_group :production do
+  gem 'thin'
+  gem 'rails_12factor'
+end
+
+#run 'bundle install'
 
 # Disable strong params
 application 'config.action_controller.permit_all_parameters = true'
+application 'config.action_controller.action_on_unpermitted_parameters = :raise'
 
 # Read me
 run 'rm README.rdoc'
@@ -16,35 +30,10 @@ file 'README.md', <<-README
 README
 
 # Bootstrap
-gem 'twitter-bootstrap-rails'
 generate "bootstrap:install", "static"
 generate "bootstrap:layout", "application", "fluid"
-
-# Development only
-
-file 'config/database.yml', <<-DB
-development:
-  adapter: sqlite3
-  database: db/development.sqlite3
-  pool: 5
-  timeout: 5000
-DB
-
-run 'rm config/environments/production.rb config/environments/test.rb'
-
-# Mute deprecations
-initializer 'mute_deprecations.rb', <<-INIT
-_muted_deprecations = %w(
-)
-
-_default_deprecation_behaviours = ActiveSupport::Deprecation.behavior
-ActiveSupport::Deprecation.behavior = Proc.new do |msg, stack|
-  next if _muted_deprecations.any? {|s| stack.first[s] }
-  _default_deprecation_behaviours.each do |behaviour|
-    behaviour.call msg, stack
-  end
-end
-INIT
+copy_file 'prototype/application.html.erb', 'app/views/layouts/application.html.erb'
+copy_file 'prototype/bootstrap_and_overrides.css', 'app/assets/stylesheets/bootstrap_and_overrides.css'
 
 # Templates
 file 'app/views/shared/_errors.html.erb', <<-ERRORS
@@ -60,8 +49,26 @@ file 'app/views/shared/_errors.html.erb', <<-ERRORS
 <% end %>
 ERRORS
 
-# Route
-route "root to: 'application#root'"
+# Authentication
+generate "devise:install"
+generate "devise User"
+
+# Remove turbolinks
+gsub_file 'Gemfile', <<-TURBO, ''
+# Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks
+gem 'turbolinks'
+TURBO
+gsub_file 'app/assets/javascripts/application.js', "//= require turbolinks\n", ''
+
+# Clean database.yml
+gsub_file 'config/database.yml', /  username: \w+\n  password:\n/, ''
+
+
+if yes? 'Is postgres running?'
+ rake 'db:create db:migrate'
+end
+
+route 'root to: "application#show"'
 
 # Git
 git :init
