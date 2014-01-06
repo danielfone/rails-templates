@@ -1,8 +1,11 @@
-# ruby '2.0.0'
+inject_into_file 'Gemfile', after: "source 'https://rubygems.org'\n" do
+  "ruby '2.1.0'\n\n"
+end
 
 # Readme
-# heroku
 # rspec - coverage
+
+application 'config.action_controller.action_on_unpermitted_parameters = :raise'
 
 # Read me
 run 'rm README.rdoc'
@@ -29,7 +32,9 @@ file 'config/database.yml', %Q[
 ]
 
 # Bootstrap
+gem 'will_paginate'
 gem 'twitter-bootstrap-rails'
+gem 'will_paginate-bootstrap'
 
 # Templates
 file 'app/views/shared/_errors.html.erb', <<-ERRORS
@@ -78,7 +83,7 @@ end
 UNICORN
 
 # Heroku
-gem 'rails_12factor'
+gem 'rails_12factor', group: :production
 file 'Procfile', "web: bundle exec unicorn -p $PORT -c ./config/unicorn.rb\n"
 
 # rspec setup
