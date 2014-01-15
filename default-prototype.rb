@@ -61,7 +61,7 @@ TURBO
 gsub_file 'app/assets/javascripts/application.js', "//= require turbolinks\n", ''
 
 # Clean database.yml
-gsub_file 'config/database.yml', /  username: \w+\n  password:\n/, ''
+gsub_file 'config/database.yml', /  username: \S+\n  password:\n/, ''
 
 
 if yes? 'Is postgres running?'
