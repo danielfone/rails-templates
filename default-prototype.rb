@@ -1,8 +1,10 @@
 source_paths << File.dirname(__FILE__)
 
 inject_into_file 'Gemfile', after: "source 'https://rubygems.org'\n" do
-  "ruby '2.1.0'\n\n"
+  "ruby File.read '.ruby-version'\n\n"
 end
+
+file '.ruby-version', '2.1.0'
 
 gem 'devise'
 gem 'twitter-bootstrap-rails'
@@ -62,7 +64,6 @@ gsub_file 'app/assets/javascripts/application.js', "//= require turbolinks\n", '
 
 # Clean database.yml
 gsub_file 'config/database.yml', /  username: \S+\n  password:\n/, ''
-
 
 if yes? 'Is postgres running?'
  rake 'db:create db:migrate'
